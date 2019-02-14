@@ -30,35 +30,33 @@ void ROBOT::Setup()
     pinMode(_LEDBuiltIn, OUTPUT);
     digitalWrite(_LEDBuiltIn, LOW);
 }
-bool PrecisionMode = false;
-bool IsArcadeMode = false;
-bool IsNoLimits = false;
-bool IsDebugMode = false;
-bool AutonRecord = false;
-float _NextSpeedUpdateMillis = 0;
-int LeftHasBeenLimited = -10;
-int RightHasBeenLimited = -10;
-int DebugModeOutput = 0;
-int16_t RecordRightSpeed = 0;
-int16_t RecordLeftSpeed = 0;
-int16_t RecordLiftSpeed = 0;
-int16_t RecordClawSpeed = 0;
-int16_t RecordBuddyBotSpeed = 0;
-int16_t RightAverage = 0;
-int16_t LeftAverage = 0;
-int16_t LiftAverage = 0;
-int16_t BuddyBotAverage = 0;
-int16_t NumOfRightAverages = 0;
-int16_t NumOfLeftAverages = 0;
-int16_t NumOfLiftAverages = 0;
-int16_t NumOfBuddyBotAverages = 0;
-int16_t RightAverageFinal = 0;
-int16_t LeftAverageFinal = 0;
-int16_t LiftAverageFinal = 0;
-int16_t BuddyBotAverageFinal = 0;
-int16_t PreviousLeftSpeed = 0;
-int16_t PreviousRightSpeed = 0;
 
+    bool Recording = false;
+    bool RecordMode = false;
+    bool TimerStarted = false;
+    long AutonTimer = 0;
+    int16_t MovementTime = 0;
+    String Comma = ",";
+    String DriveAsyncCommand = "Robot.Drive.ForAsync(";
+    String Endparen = ")";
+    int16_t RecordRightSpeed = 0;
+    int16_t RecordLeftSpeed = 0;
+    int16_t RecordLiftSpeed = 0;
+    int16_t RecordClawSpeed = 0;
+    int16_t RecordBuddyBotSpeed = 0;
+    int16_t RightAverage = 0;
+    int16_t LeftAverage = 0;
+    int16_t LiftAverage = 0;
+    int16_t BuddyBotAverage = 0;
+    int16_t NumOfRightAverages = 0;
+    int16_t NumOfLeftAverages = 0;
+    int16_t NumOfLiftAverages = 0;
+    int16_t NumOfBuddyBotAverages = 0;
+    int16_t RightAverageFinal = 0;
+    int16_t LeftAverageFinal = 0;
+    int16_t LiftAverageFinal = 0;
+    int16_t BuddyBotAverageFinal = 0;
+    
 void ROBOT::Loop()
 {
      //Read The Controller
@@ -107,11 +105,9 @@ void ROBOT::Loop()
             CurrentLeftSpeed = CurrentLeftSpeed * .5;
             CurrentRightSpeed = CurrentRightSpeed  * .5;
         }
-        //Program to record autonomous is in progress. It will print out the time and the average of the speeds. 
-        //You will only be able to do one thing at a time and not go backwards without reseting. 
-        //This is because of how I have coded this. 
-        if(AutonRecord)
-        {
+
+        while(RecordMode)
+        {   //Updates the speeds to the vars used in this program
             if(_NextSpeedUpdateMillis < millis())
             {
                _NextSpeedUpdateMillis = millis() + 20;
@@ -120,8 +116,11 @@ void ROBOT::Loop()
                RecordLiftSpeed = LiftSpeed;
                RecordBuddyBotSpeed = BuddyLiftSpeed;
             }
-            while(AutonRecord)
+            //Outputs to display every 5 Seconds
+            while(RecordMode)
             {
+            Serial.println("Total Seconds");
+            Serial.println(MovementTime);
             Serial.println("Right Average Speed");
             Serial.println(RightAverageFinal);
             Serial.println("Left Average Speed");
@@ -132,35 +131,38 @@ void ROBOT::Loop()
             Serial.println(BuddyBotAverageFinal);
             delay(5000);
             }
-            if(CurrentRightSpeed < 0 or CurrentRightSpeed > 0)
+            //Gets the average speed for Right Side travel
+            while (Recording)
             {
+                if(TimerStarted == false)
+                {
+                    AutonTimer = millis();
+                    TimerStarted = true;
+                }
                 if(_NextSpeedUpdateMillis < millis());
                 RightAverage = CurrentRightSpeed + RightAverage;
                 NumOfRightAverages++;
                 RightAverageFinal = RightAverage/NumOfRightAverages;
-            }
-            if(CurrentLeftSpeed < 0 or CurrentLeftSpeed > 0)
-            {
                 if(_NextSpeedUpdateMillis < millis());
                 LeftAverage = CurrentLeftSpeed + LeftAverage;
                 NumOfLeftAverages++;
                 LeftAverageFinal = LeftAverage/NumOfLeftAverages;
-            }
-            if(LiftSpeed < 0 or LiftSpeed > 0)
-            {
                 if(_NextSpeedUpdateMillis < millis());
                 LiftAverage = LiftSpeed + LiftAverage;
                 NumOfLiftAverages++;
                 LiftAverageFinal = LiftAverage/NumOfLiftAverages;
-            }
-            if(BuddyLiftSpeed < 0 or BuddyLiftSpeed > 0)
-            {
                 if(_NextSpeedUpdateMillis < millis());
                 BuddyBotAverage = BuddyLiftSpeed + BuddyBotAverage;
                 NumOfBuddyBotAverages++;
                 BuddyBotAverageFinal = BuddyBotAverage/NumOfLiftAverages;
+                
             }
         }
+    
+
+
+
+
         //Press the back button to engage Debug Mode. 
         //Press it again to toggle the output to the display. 
         if(IsDebugMode)
@@ -223,7 +225,7 @@ void ROBOT::Loop()
         IsArcadeMode = !IsArcadeMode;
         
         if (Xbox.getButtonClick(START))
-        AutonRecord =!AutonRecord;
+        Recording =!Recording;
 
         if (Xbox.getButtonClick(BACK))
         IsDebugMode = !IsDebugMode;

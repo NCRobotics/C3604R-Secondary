@@ -46,6 +46,17 @@ class ROBOT
     
     XBOXRECV Xbox;
     
+    //Vars that I decided go here
+    bool PrecisionMode = false;
+    bool IsArcadeMode = false;
+    bool IsNoLimits = false;
+    bool IsDebugMode = false;
+    float _NextSpeedUpdateMillis = 0;
+    int LeftHasBeenLimited = -10;
+    int RightHasBeenLimited = -10;
+    int DebugModeOutput = 0;
+    int16_t PreviousLeftSpeed = 0;
+    int16_t PreviousRightSpeed = 0;
     
    
 
@@ -77,7 +88,7 @@ class ROBOT
     static const uint8_t LeftEncoderPin1 = 26;
     static const uint8_t LeftEncoderPin2 = 27;
 
-    static const uint16_t _AutonLightSensorThreshold = 3000; //Value 0 - 1024
+    static const uint16_t _AutonLightSensorThreshold = 3000; //Value 0 - 4095
 
   private:
       long _NextDisplayMillis = 0;
