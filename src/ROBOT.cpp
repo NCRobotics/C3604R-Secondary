@@ -1,4 +1,6 @@
  #include "ROBOT.h"
+ #include "Preferences.h"
+ Preferences preferences;
 ROBOT::ROBOT(YETI_YUKON &rYukon) : Yukon(rYukon),
      DriveRight(_DriveRightPWM, &Yukon.PWM, _DriveRightDir, _DriveRightReversed), 
      DriveLeft(_DriveLeftPWM, &Yukon.PWM, _DriveLeftDir, _DriveLeftReversed), 
@@ -35,6 +37,7 @@ void ROBOT::Setup()
     bool RecordMode = false;
     bool TimerStarted = false;
     long AutonTimer = 0;
+    long AutonStopTime = 0;
     int16_t MovementTime = 0;
     String Comma = ",";
     String DriveAsyncCommand = "Robot.Drive.ForAsync(";
@@ -56,6 +59,13 @@ void ROBOT::Setup()
     int16_t LeftAverageFinal = 0;
     int16_t LiftAverageFinal = 0;
     int16_t BuddyBotAverageFinal = 0;
+    //Function declaration for auton recording   
+    void StopTimer()
+    {
+        AutonStopTime = millis();
+        AutonTimer = AutonStopTime - AutonTimer;
+    }
+
     
 void ROBOT::Loop()
 {
@@ -93,7 +103,7 @@ void ROBOT::Loop()
             }
         }*/
         int16_t LiftSpeed = (Xbox.getButtonPress(R2, i) - Xbox.getButtonPress(L2, i));
-        int16_t BuddyLiftSpeed =(Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255);  
+        int16_t BuddyLiftSpeed = ((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));  
         if(IsArcadeMode)
         {
             CurrentRightSpeed =  (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatX, i), 7500)) + (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
@@ -116,22 +126,9 @@ void ROBOT::Loop()
                RecordLiftSpeed = LiftSpeed;
                RecordBuddyBotSpeed = BuddyLiftSpeed;
             }
-            //Outputs to display every 5 Seconds
-            while(RecordMode)
-            {
-            Serial.println("Total Seconds");
-            Serial.println(MovementTime);
-            Serial.println("Right Average Speed");
-            Serial.println(RightAverageFinal);
-            Serial.println("Left Average Speed");
-            Serial.println(LeftAverageFinal);
-            Serial.println("Lift Average Speed");
-            Serial.println(LiftAverageFinal);
-            Serial.println("Buddy Bot Lift Average Speed");
-            Serial.println(BuddyBotAverageFinal);
-            delay(5000);
-            }
-            //Gets the average speed for Right Side travel
+            //Creates a timer and collects the average speeds. You cannot go backwards without 
+            //stopping your current timer and going again.
+            
             while (Recording)
             {
                 if(TimerStarted == false)
@@ -156,6 +153,26 @@ void ROBOT::Loop()
                 NumOfBuddyBotAverages++;
                 BuddyBotAverageFinal = BuddyBotAverage/NumOfLiftAverages;
                 
+            }
+            if (Recording == false)
+            {
+            preferences.putLong("TotalTime", AutonTimer);
+            preferences.putUInt("RightAverage", RightAverageFinal);
+            preferences.putUInt("LeftAverage", LeftAverageFinal);
+            preferences.putUInt("LiftAverage", LiftAverageFinal);
+            preferences.putUInt("BuddyBotFinal", BuddyBotAverageFinal);
+            Serial.println(AutonTimer);
+            Serial.println("Right Average Speed");
+            Serial.println(RightAverageFinal);
+            Serial.println("Left Average Speed");
+            Serial.println(LeftAverageFinal);
+            Serial.println("Lift Average Speed");
+            Serial.println(LiftAverageFinal);
+            Serial.println("Buddy Bot Lift Average Speed");
+            Serial.println(BuddyBotAverageFinal);
+            delay(5000);
+
+            
             }
         }
     
@@ -204,6 +221,7 @@ void ROBOT::Loop()
         Lift.OISetSpeed(LiftSpeed*0.5);
         Claw.OISetSpeed(Xbox.getButtonPress(A));
         BuddyBot.OISetSpeed(BuddyLiftSpeed);
+        Serial.println((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));
 
 
         if (Xbox.getButtonClick(LEFT))
@@ -224,11 +242,20 @@ void ROBOT::Loop()
         if (Xbox.getButtonClick(B))
         IsArcadeMode = !IsArcadeMode;
         
-        if (Xbox.getButtonClick(START))
-        Recording =!Recording;
-
         if (Xbox.getButtonClick(BACK))
+        RecordMode =!RecordMode;
+
+        if (Xbox.getButtonClick(START))
+        {Recording =!Recording;
+        if (Recording == false)
+        {
+            StopTimer();
+        }
+        }
+        if (Xbox.getButtonClick(L3))
         IsDebugMode = !IsDebugMode;
+        
+        if (Xbox.getButtonClick(R3))
         DebugModeOutput = (DebugModeOutput) + 1;
         
 
@@ -305,27 +332,7 @@ void ROBOT::Loop()
             Yukon.OLED.setTextSize(1.1);
             Yukon.OLED.print("Precsion Mode");
             Yukon.OLED.display();
-        }/*
-        else if (LeftHasBeenLimited = (1))
-        {
-            Yukon.OLED.clearDisplay();
-            Yukon.OLED.setCursor(0, 0);
-            Yukon.OLED.setTextSize(1.1);
-            Yukon.OLED.print("Acceleration");
-            Yukon.OLED.print("Has Been");
-            Yukon.OLED.print("Limited (L)");
-            Yukon.OLED.display();
         }
-        else if (RightHasBeenLimited = (1))
-        {
-            Yukon.OLED.clearDisplay();
-            Yukon.OLED.setCursor(0, 0);
-            Yukon.OLED.setTextSize(1.1);
-            Yukon.OLED.print("Acceleration");
-            Yukon.OLED.print("Has Been");
-            Yukon.OLED.print("Limited (R)");            
-            Yukon.OLED.display();
-        }*/
         
         else if(IsArcadeMode)
         {

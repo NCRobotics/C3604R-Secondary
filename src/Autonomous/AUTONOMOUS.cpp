@@ -3,7 +3,7 @@
 
 AUTONOMOUS::AUTONOMOUS(ROBOT &refRobot) : Robot(refRobot)
 {
-    _MaxProgramNumber = 4;
+    _MaxProgramNumber = 5;
 }
 
 void AUTONOMOUS::Loop()
@@ -20,6 +20,7 @@ void AUTONOMOUS::Loop()
     else if(_RunningAuton == "Auton2") ExecAuton2();
     else if(_RunningAuton == "Auton3") ExecAuton3();
     else if(_RunningAuton == "Auton4") ExecAuton4();
+    else if (_RunningAuton == "Auton5") ExecAuton5();
 
      _RunningAuton = "";
     delay(20);
@@ -57,4 +58,9 @@ void AUTONOMOUS::ExecAuton4()
     Robot.Drive.ForAsync(900, 100, 100, 100);
     Robot.Drive.ForAsync(1500, -100, 100, 100);
     Robot.Drive.ForAsync(2000,255,255,100);
+}
+void AUTONOMOUS::ExecAuton5()
+{
+    //Will be written to and saved
+    
 }

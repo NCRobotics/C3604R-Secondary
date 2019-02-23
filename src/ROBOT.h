@@ -74,11 +74,11 @@ class ROBOT
     static const bool _LiftMotorReversed = false;
         
     static const int _ClawMotorPWM = 3;
-    static const int _ClawMotorDir = 22;
+    static const int _ClawMotorDir = 21;
     static const bool _ClawMotorReversed = false;
         
-    static const int _BuddyBotLiftPWM = 2;//4;
-    static const int _BuddyBotLiftDir = 21;//26;
+    static const int _BuddyBotLiftPWM = 3;//4;
+    static const int _BuddyBotLiftDir = 22;//26;
     static const bool _BuddyBotLiftReversed = false;
         
 
