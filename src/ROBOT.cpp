@@ -27,6 +27,7 @@ void ROBOT::Setup()
     LiftMotor.Init();
     ClawMotor.Init();
     BuddyBotLift.Init();
+    preferences.begin("Recording", false);
 
     pinMode(_Button0, INPUT_PULLUP);
     pinMode(_LEDBuiltIn, OUTPUT);
@@ -71,18 +72,13 @@ void ROBOT::Setup()
     int16_t BuddyBotSpeeds [750];
 
     //Function declaration for auton recording   
-    void StopTimer()
+    void ReadStoredAuton()
     {
-        AutonStopTime = millis();
-        AutonTimer = AutonStopTime - AutonTimer;
+        
     }
-    void SaveAuton()
+    void StoreAuton()
     {
-        preferences.putLong("TotalTime", AutonTimer);
-        preferences.putUInt("RightAverage", RightAverageFinal);
-        preferences.putUInt("LeftAverage", LeftAverageFinal);
-        preferences.putUInt("LiftAverage", LiftAverageFinal);
-        preferences.putUInt("BuddyBotAverage", BuddyBotAverageFinal);
+
     }
 
     
@@ -147,45 +143,33 @@ void ROBOT::Loop()
                     LiftSpeeds       [LiftArrayPos] = LiftSpeed;
                     ClawSpeeds       [ClawArrayPos] = ClawSpeed;
                     BuddyBotSpeeds   [BuddyBotArrayPos] = BuddyLiftSpeed;
+                    RightArrayPos++;
+                    LeftArrayPos++;
+                    LiftArrayPos++;
+                    ClawArrayPos++;
+                    BuddyBotArrayPos++;
+                    if(RightArrayPos > 750)
+                    {
+                        RightArrayPos = 750;
+                    }
+                    if(LeftArrayPos > 750)
+                    {
+                        LiftArrayPos = 750;
+                    }
+                    if(LiftArrayPos > 750)
+                    {
+                        LiftArrayPos = 750;
+                    }
+                    if(ClawArrayPos > 750)
+                    {
+                        ClawArrayPos = 750;
+                    }
+                    if(BuddyBotArrayPos > 750)
+                    {
+                        BuddyBotArrayPos = 750;
+                    }
                 }
-                if(TimerStarted == false)
-                {
-                    AutonTimer = millis();
-                    TimerStarted = true;
-                }
-                if(_NextSpeedUpdateMillis < millis());
-                RightAverage = CurrentRightSpeed + RightAverage;
-                NumOfRightAverages++;
-                RightAverageFinal = RightAverage/NumOfRightAverages;
-                if(_NextSpeedUpdateMillis < millis());
-                LeftAverage = CurrentLeftSpeed + LeftAverage;
-                NumOfLeftAverages++;
-                LeftAverageFinal = LeftAverage/NumOfLeftAverages;
-                if(_NextSpeedUpdateMillis < millis());
-                LiftAverage = LiftSpeed + LiftAverage;
-                NumOfLiftAverages++;
-                LiftAverageFinal = LiftAverage/NumOfLiftAverages;
-                if(_NextSpeedUpdateMillis < millis());
-                BuddyBotAverage = BuddyLiftSpeed + BuddyBotAverage;
-                NumOfBuddyBotAverages++;
-                BuddyBotAverageFinal = BuddyBotAverage/NumOfBuddyBotAverages;
-                
-            }
-            if (Recording == false)
-            {
-           
-            Serial.println(AutonTimer);
-            Serial.println("Right Average Speed");
-            Serial.println(RightAverageFinal);
-            Serial.println("Left Average Speed");
-            Serial.println(LeftAverageFinal);
-            Serial.println("Lift Average Speed");
-            Serial.println(LiftAverageFinal);
-            Serial.println("Buddy Bot Lift Average Speed");
-            Serial.println(BuddyBotAverageFinal);
-            delay(5000);
-
-            
+              
             }
         }
     
@@ -259,12 +243,8 @@ void ROBOT::Loop()
         RecordMode =!RecordMode;
 
         if (Xbox.getButtonClick(START))
-        {Recording =!Recording;
-        if (Recording == false)
-        {
-            StopTimer();
-        }
-        }
+        Recording =!Recording;
+        
         if (Xbox.getButtonClick(L3))
         IsDebugMode = !IsDebugMode;
         
