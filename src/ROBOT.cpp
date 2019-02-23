@@ -59,11 +59,30 @@ void ROBOT::Setup()
     int16_t LeftAverageFinal = 0;
     int16_t LiftAverageFinal = 0;
     int16_t BuddyBotAverageFinal = 0;
+    int16_t DriveRightSpeeds [750];
+    int RightArrayPos = 0;
+    int LeftArrayPos = 0;
+    int LiftArrayPos = 0;
+    int ClawArrayPos = 0;
+    int BuddyBotArrayPos = 0;
+    int16_t DriveLeftSpeeds [750];
+    int16_t LiftSpeeds [750];
+    int16_t ClawSpeeds [750];
+    int16_t BuddyBotSpeeds [750];
+
     //Function declaration for auton recording   
     void StopTimer()
     {
         AutonStopTime = millis();
         AutonTimer = AutonStopTime - AutonTimer;
+    }
+    void SaveAuton()
+    {
+        preferences.putLong("TotalTime", AutonTimer);
+        preferences.putUInt("RightAverage", RightAverageFinal);
+        preferences.putUInt("LeftAverage", LeftAverageFinal);
+        preferences.putUInt("LiftAverage", LiftAverageFinal);
+        preferences.putUInt("BuddyBotAverage", BuddyBotAverageFinal);
     }
 
     
@@ -80,7 +99,7 @@ void ROBOT::Loop()
         {
         int16_t CurrentRightSpeed  = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
         int16_t CurrentLeftSpeed = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(RightHatY, i), 7500));
-
+        int16_t ClawSpeed = (Xbox.getButtonPress(A))*255;
        if (_NextGetPrevSpeed < millis())
         {
         _NextGetPrevSpeed = millis() + 30;
@@ -117,20 +136,18 @@ void ROBOT::Loop()
         }
 
         while(RecordMode)
-        {   //Updates the speeds to the vars used in this program
-            if(_NextSpeedUpdateMillis < millis())
-            {
-               _NextSpeedUpdateMillis = millis() + 20;
-               RecordRightSpeed = CurrentRightSpeed;
-               RecordLeftSpeed = CurrentLeftSpeed;
-               RecordLiftSpeed = LiftSpeed;
-               RecordBuddyBotSpeed = BuddyLiftSpeed;
-            }
-            //Creates a timer and collects the average speeds. You cannot go backwards without 
-            //stopping your current timer and going again.
-            
+        {  
             while (Recording)
             {
+                if(_NextSpeedUpdateMillis < millis())
+                {
+                    _NextSpeedUpdateMillis = millis() + 20;
+                    DriveRightSpeeds [RightArrayPos] = CurrentRightSpeed;
+                    DriveLeftSpeeds  [LeftArrayPos] = CurrentLeftSpeed;
+                    LiftSpeeds       [LiftArrayPos] = LiftSpeed;
+                    ClawSpeeds       [ClawArrayPos] = ClawSpeed;
+                    BuddyBotSpeeds   [BuddyBotArrayPos] = BuddyLiftSpeed;
+                }
                 if(TimerStarted == false)
                 {
                     AutonTimer = millis();
@@ -151,16 +168,12 @@ void ROBOT::Loop()
                 if(_NextSpeedUpdateMillis < millis());
                 BuddyBotAverage = BuddyLiftSpeed + BuddyBotAverage;
                 NumOfBuddyBotAverages++;
-                BuddyBotAverageFinal = BuddyBotAverage/NumOfLiftAverages;
+                BuddyBotAverageFinal = BuddyBotAverage/NumOfBuddyBotAverages;
                 
             }
             if (Recording == false)
             {
-            preferences.putLong("TotalTime", AutonTimer);
-            preferences.putUInt("RightAverage", RightAverageFinal);
-            preferences.putUInt("LeftAverage", LeftAverageFinal);
-            preferences.putUInt("LiftAverage", LiftAverageFinal);
-            preferences.putUInt("BuddyBotFinal", BuddyBotAverageFinal);
+           
             Serial.println(AutonTimer);
             Serial.println("Right Average Speed");
             Serial.println(RightAverageFinal);
@@ -219,7 +232,7 @@ void ROBOT::Loop()
 
         Drive.OISetSpeed(CurrentRightSpeed, CurrentLeftSpeed);
         Lift.OISetSpeed(LiftSpeed*0.5);
-        Claw.OISetSpeed(Xbox.getButtonPress(A));
+        Claw.OISetSpeed(ClawSpeed);
         BuddyBot.OISetSpeed(BuddyLiftSpeed);
         Serial.println((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));
 
