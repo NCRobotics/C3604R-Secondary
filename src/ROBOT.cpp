@@ -33,7 +33,6 @@ void ROBOT::Setup()
     pinMode(_LEDBuiltIn, OUTPUT);
     digitalWrite(_LEDBuiltIn, LOW);
 }
-
     
 void ROBOT::Loop()
 {
@@ -90,18 +89,24 @@ void ROBOT::Loop()
             while (Recording)
             {
                 if(_NextSpeedUpdateMillis < millis())
-                {
+                {   
                     _NextSpeedUpdateMillis = millis() + 20;
                     DriveRightSpeeds [RightArrayPos] = CurrentRightSpeed;
-                    DriveLeftSpeeds  [LeftArrayPos] = CurrentLeftSpeed;
-                    LiftSpeeds       [LiftArrayPos] = LiftSpeed;
-                    ClawSpeeds       [ClawArrayPos] = ClawSpeed;
-                    BuddyBotSpeeds   [BuddyBotArrayPos] = BuddyLiftSpeed;
+                    preferences.putShort("RightArray" + RightArrayPos, DriveRightSpeeds[RightArrayPos]);
                     RightArrayPos++;
+                    DriveLeftSpeeds  [LeftArrayPos] = CurrentLeftSpeed;
+                    preferences.putShort("LeftArray"+LeftArrayPos, DriveLeftSpeeds[LeftArrayPos]);
                     LeftArrayPos++;
+                    LiftSpeeds       [LiftArrayPos] = LiftSpeed;
+                    preferences.putShort("LiftArray"+LiftArrayPos, LiftSpeeds[LiftArrayPos]);
                     LiftArrayPos++;
+                    ClawSpeeds       [ClawArrayPos] = ClawSpeed;
+                    preferences.putShort("ClawArray"+ClawArrayPos, ClawSpeeds[ClawArrayPos]);
                     ClawArrayPos++;
+                    BuddyBotSpeeds   [BuddyBotArrayPos] = BuddyLiftSpeed;
+                    preferences.putShort("BuddyBotArray"+BuddyBotArrayPos, BuddyBotSpeeds[BuddyBotArrayPos]);
                     BuddyBotArrayPos++;
+
                     if(RightArrayPos > 750)
                     {
                         RightArrayPos = 750;
