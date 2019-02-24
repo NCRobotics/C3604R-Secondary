@@ -55,8 +55,58 @@ class ROBOT
     int LeftHasBeenLimited = -10;
     int RightHasBeenLimited = -10;
     int DebugModeOutput = 0;
+    int RightArrayPos = 0;
+    int LeftArrayPos = 0;
+    int LiftArrayPos = 0;
+    int ClawArrayPos = 0;
+    int BuddyBotArrayPos = 0;
+    int RightArrayProg = 0;
+    int LeftArrayProg = 0;
+    int LiftArrayProg = 0;
+    int ClawArrayProg = 0;
+    int BuddyBotArrayProg = 0;
+    bool Recording = false;
+    bool RecordMode = false;
+    //Array Definitions
+    int16_t DriveRightSpeeds [750];
+    int16_t DriveLeftSpeeds [750];
+    int16_t LiftSpeeds [750];
+    int16_t ClawSpeeds [750];
+    int16_t BuddyBotSpeeds [750];
+    //Speed Variable Definitions   
     int16_t PreviousLeftSpeed = 0;
     int16_t PreviousRightSpeed = 0;
+    int16_t CurrentRightSpeed = 0;
+    int16_t CurrentLeftSpeed = 0;
+    int16_t LiftSpeed = 0;
+    int16_t ClawSpeed = 0;
+    int16_t BuddyLiftSpeed = 0;
+    //Pointer Definitions
+    int16_t (*RightArray) = DriveRightSpeeds;
+
+    void ReadStoredAuton()
+    {
+      //Retriving Values from storage commands will go here
+      while(RightArrayProg < 750)
+      {
+        if(_NextSpeedUpdateMillis < millis())
+        {
+            _NextSpeedUpdateMillis = millis() + 20;
+            CurrentRightSpeed = DriveRightSpeeds[RightArrayProg];
+            RightArrayProg++;
+            CurrentLeftSpeed = DriveLeftSpeeds[LeftArrayProg];
+            LeftArrayProg++;
+            LiftSpeed = LiftSpeeds[LiftArrayProg];
+            LiftArrayProg++;
+            ClawSpeed = ClawSpeeds[ClawArrayProg];
+            ClawArrayProg++;
+            BuddyLiftSpeed = BuddyBotSpeeds[BuddyBotArrayProg];
+            BuddyBotArrayProg++;
+        }
+
+            
+      }
+    }
     
    
 

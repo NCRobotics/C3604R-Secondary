@@ -34,53 +34,6 @@ void ROBOT::Setup()
     digitalWrite(_LEDBuiltIn, LOW);
 }
 
-    bool Recording = false;
-    bool RecordMode = false;
-    bool TimerStarted = false;
-    long AutonTimer = 0;
-    long AutonStopTime = 0;
-    int16_t MovementTime = 0;
-    String Comma = ",";
-    String DriveAsyncCommand = "Robot.Drive.ForAsync(";
-    String Endparen = ")";
-    int16_t RecordRightSpeed = 0;
-    int16_t RecordLeftSpeed = 0;
-    int16_t RecordLiftSpeed = 0;
-    int16_t RecordClawSpeed = 0;
-    int16_t RecordBuddyBotSpeed = 0;
-    int16_t RightAverage = 0;
-    int16_t LeftAverage = 0;
-    int16_t LiftAverage = 0;
-    int16_t BuddyBotAverage = 0;
-    int16_t NumOfRightAverages = 0;
-    int16_t NumOfLeftAverages = 0;
-    int16_t NumOfLiftAverages = 0;
-    int16_t NumOfBuddyBotAverages = 0;
-    int16_t RightAverageFinal = 0;
-    int16_t LeftAverageFinal = 0;
-    int16_t LiftAverageFinal = 0;
-    int16_t BuddyBotAverageFinal = 0;
-    int16_t DriveRightSpeeds [750];
-    int RightArrayPos = 0;
-    int LeftArrayPos = 0;
-    int LiftArrayPos = 0;
-    int ClawArrayPos = 0;
-    int BuddyBotArrayPos = 0;
-    int16_t DriveLeftSpeeds [750];
-    int16_t LiftSpeeds [750];
-    int16_t ClawSpeeds [750];
-    int16_t BuddyBotSpeeds [750];
-
-    //Function declaration for auton recording   
-    void ReadStoredAuton()
-    {
-        
-    }
-    void StoreAuton()
-    {
-
-    }
-
     
 void ROBOT::Loop()
 {
@@ -93,9 +46,9 @@ void ROBOT::Loop()
         {
         if (Xbox.Xbox360Connected[i])
         {
-        int16_t CurrentRightSpeed  = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
-        int16_t CurrentLeftSpeed = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(RightHatY, i), 7500));
-        int16_t ClawSpeed = (Xbox.getButtonPress(A))*255;
+         CurrentRightSpeed  = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
+         CurrentLeftSpeed = (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(RightHatY, i), 7500));
+         ClawSpeed = (Xbox.getButtonPress(A))*255;
        if (_NextGetPrevSpeed < millis())
         {
         _NextGetPrevSpeed = millis() + 30;
@@ -117,8 +70,8 @@ void ROBOT::Loop()
                 RightHasBeenLimited = 0;
             }
         }*/
-        int16_t LiftSpeed = (Xbox.getButtonPress(R2, i) - Xbox.getButtonPress(L2, i));
-        int16_t BuddyLiftSpeed = ((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));  
+         LiftSpeed = (Xbox.getButtonPress(R2, i) - Xbox.getButtonPress(L2, i));
+         BuddyLiftSpeed = ((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));  
         if(IsArcadeMode)
         {
             CurrentRightSpeed =  (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatX, i), 7500)) + (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
@@ -131,6 +84,7 @@ void ROBOT::Loop()
             CurrentRightSpeed = CurrentRightSpeed  * .5;
         }
 
+        
         while(RecordMode)
         {  
             while (Recording)

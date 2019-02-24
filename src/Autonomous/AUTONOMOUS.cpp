@@ -61,6 +61,5 @@ void AUTONOMOUS::ExecAuton4()
 }
 void AUTONOMOUS::ExecAuton5()
 {
-    //Will be written to and saved
-    
+    Robot.ReadStoredAuton();    
 }
