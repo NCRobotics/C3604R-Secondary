@@ -25,40 +25,43 @@ void AUTONOMOUS::Loop()
      _RunningAuton = "";
     delay(20);
 }
-//You need to travel about 1140 ms to go a whole tile
 void AUTONOMOUS::ExecAuton1()
 {
     //Hits low flag and drives on the platform
     //Red Close Tile
-    Robot.Drive.ForAsync(3000, 100, 100, 100);
-    Robot.Drive.ForAsync(4300, -100, -100, 100);
-    Robot.Drive.ForAsync(1500, -100, 100, 100);
-    Robot.Drive.ForAsync(2000, 255, 255, 100);
+    Robot.Drive.ForAsync(3000, 100, 100, 100);//Drives forward to hit flag
+    Robot.Drive.ForAsync(4300, -100, -100, 100);//Drives backward
+    Robot.Drive.ForAsync(1500, -100, 100, 100);//Turns
+    Robot.Drive.ForAsync(2000, 255, 255, 100);//Climbs platform
 
   
 }
 void AUTONOMOUS::ExecAuton2()
+    //Hits low flag and drives on the platform
     //Blue close tile
-{   Robot.Drive.ForAsync(3000, 100, 100, 100);
-    Robot.Drive.ForAsync(4300, -100, -100, 100);
-    Robot.Drive.ForAsync(1500, 100, -100, 100);
-    Robot.Drive.ForAsync(2000, 255, 255, 100);
+{   Robot.Drive.ForAsync(3000, 100, 100, 100);//Drives forward to hit flag
+    Robot.Drive.ForAsync(4300, -100, -100, 100);//Drives backward
+    Robot.Drive.ForAsync(1500, 100, -100, 100);//Turns
+    Robot.Drive.ForAsync(2000, 255, 255, 100);//Climbs platform
     
 
 }
 void AUTONOMOUS::ExecAuton3()
-{   //Red far tile
-    Robot.Drive.ForAsync(900, 100, 100, 100);
-    Robot.Drive.ForAsync(1500, 100, -100, 100);
-    Robot.Drive.ForAsync(2000,255,255,100);
+{   //Drives on platform
+    //Red far tile
+    Robot.Drive.ForAsync(900, 100, 100, 100);//Drives forward
+    Robot.Drive.ForAsync(1500, 100, -100, 100);//Turns
+    Robot.Drive.ForAsync(2000,255,255,100);//Drives on platform
 
 }
 void AUTONOMOUS::ExecAuton4()
-{   //Blue far tile
-    Robot.Drive.ForAsync(900, 100, 100, 100);
-    Robot.Drive.ForAsync(1500, -100, 100, 100);
-    Robot.Drive.ForAsync(2000,255,255,100);
+{   //Drives on platform
+    //Blue far tile
+    Robot.Drive.ForAsync(900, 100, 100, 100);//Drives forward
+    Robot.Drive.ForAsync(1500, -100, 100, 100);//Turns
+    Robot.Drive.ForAsync(2000,255,255,100);//Drives on platform
 }
+//Do not touch this. This is for your previously recorded auton.
 void AUTONOMOUS::ExecAuton5()
 {
     Robot.ReadStoredAuton();    

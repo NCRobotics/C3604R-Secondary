@@ -14,6 +14,7 @@
 #include "Subsystems\BuddyBot.h"
 
 #include "Autonomous\AUTONOMOUS.h"
+#include "Preferences.h"
 
 class ROBOT
 {
@@ -43,15 +44,17 @@ class ROBOT
 
     //USB Items
     USB Usb;
-    
+    Preferences preferences;
     XBOXRECV Xbox;
     
-    //Vars that I decided go here
+    //Variables for different modes
     bool PrecisionMode = false;
     bool IsArcadeMode = false;
     bool IsNoLimits = false;
     bool IsDebugMode = false;
+    //Vars for speed checks
     float _NextSpeedUpdateMillis = 0;
+    //Misc vars from stuff I added
     int LeftHasBeenLimited = -10;
     int RightHasBeenLimited = -10;
     int DebugModeOutput = 0;
@@ -85,14 +88,23 @@ class ROBOT
     int16_t (*RightArray) = DriveRightSpeeds;
 
     void ReadStoredAuton()
-    {
-      //Retriving Values from storage commands will go here
+    { 
+      //This will start the storage access
+      preferences.begin("Recording", false);
+      //These preferences lines will get the speeds stored in an array
+      preferences.getBytes("DriveRightSpeeds", &DriveRightSpeeds, sizeof(DriveRightSpeeds));
+      preferences.getBytes("DriveLeftSpeeds", &DriveLeftSpeeds, sizeof(DriveLeftSpeeds));
+      preferences.getBytes("LiftSpeeds", &LiftSpeeds, sizeof(LiftSpeeds));
+      preferences.getBytes("ClawSpeeds", &ClawSpeeds, sizeof(ClawSpeeds));
+      preferences.getBytes("BuddyBotSpeeds", &BuddyBotSpeeds, sizeof(BuddyBotSpeeds));
       while(RightArrayProg < 750)
-      {
+      { //This will only run every 20 milliseconds
         if(_NextSpeedUpdateMillis < millis())
-        {
+        {   
             _NextSpeedUpdateMillis = millis() + 20;
+            //This line sets the speeds to what is in the array
             CurrentRightSpeed = DriveRightSpeeds[RightArrayProg];
+            //This line sets the value in the array that is being read. 
             RightArrayProg++;
             CurrentLeftSpeed = DriveLeftSpeeds[LeftArrayProg];
             LeftArrayProg++;
@@ -103,7 +115,10 @@ class ROBOT
             BuddyLiftSpeed = BuddyBotSpeeds[BuddyBotArrayProg];
             BuddyBotArrayProg++;
         }
-
+        if(RightArrayProg > 750)
+        { //This will end the storage session when the arrays are finished reading
+          preferences.end();
+        }
             
       }
     }
@@ -146,7 +161,7 @@ class ROBOT
       long _NextGetPrevSpeed = 0;
 };
 #endif
-
+//Some test stuff that didn't work
 /*class Encoder;
 
     //Read the Encoders

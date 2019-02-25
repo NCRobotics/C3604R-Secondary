@@ -27,8 +27,6 @@ void ROBOT::Setup()
     LiftMotor.Init();
     ClawMotor.Init();
     BuddyBotLift.Init();
-    preferences.begin("Recording", false);
-
     pinMode(_Button0, INPUT_PULLUP);
     pinMode(_LEDBuiltIn, OUTPUT);
     digitalWrite(_LEDBuiltIn, LOW);
@@ -54,7 +52,7 @@ void ROBOT::Loop()
         CurrentLeftSpeed = PreviousLeftSpeed;
         CurrentRightSpeed = PreviousRightSpeed;
         }
-
+        //Some acceleration limiting code, this made the robot choppy
         /*if (IsNoLimits == false)
         {    
             if ((CurrentLeftSpeed - PreviousLeftSpeed) > 2)
@@ -71,28 +69,34 @@ void ROBOT::Loop()
         }*/
          LiftSpeed = (Xbox.getButtonPress(R2, i) - Xbox.getButtonPress(L2, i));
          BuddyLiftSpeed = ((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));  
+        //This changes the drive mode from 2 joysticks to 1
         if(IsArcadeMode)
         {
             CurrentRightSpeed =  (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatX, i), 7500)) + (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500));
             CurrentLeftSpeed =   (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatY, i), 7500)) -  (Yukon.XBOXJoystickTo255(Xbox.getAnalogHat(LeftHatX, i), 7500));
         }
-        
+        //This cuts all drive inputs by half for more precise movement
         if(PrecisionMode)
         {
             CurrentLeftSpeed = CurrentLeftSpeed * .5;
             CurrentRightSpeed = CurrentRightSpeed  * .5;
         }
 
-        
+        //This will record an auton when the back and start buttons are pressed in sequence. 
+        //Simply start driving to record.
         while(RecordMode)
         {  
             while (Recording)
             {
                 if(_NextSpeedUpdateMillis < millis())
                 {   
+                    //This is the 20 millisecond timer
                     _NextSpeedUpdateMillis = millis() + 20;
+                    //This puts the current speed in an array
                     DriveRightSpeeds [RightArrayPos] = CurrentRightSpeed;
+                    //This will store that array
                     preferences.putShort("RightArray" + RightArrayPos, DriveRightSpeeds[RightArrayPos]);
+                    //This will change the postion that the array is writing to. 
                     RightArrayPos++;
                     DriveLeftSpeeds  [LeftArrayPos] = CurrentLeftSpeed;
                     preferences.putShort("LeftArray"+LeftArrayPos, DriveLeftSpeeds[LeftArrayPos]);
@@ -106,7 +110,7 @@ void ROBOT::Loop()
                     BuddyBotSpeeds   [BuddyBotArrayPos] = BuddyLiftSpeed;
                     preferences.putShort("BuddyBotArray"+BuddyBotArrayPos, BuddyBotSpeeds[BuddyBotArrayPos]);
                     BuddyBotArrayPos++;
-
+                    //This effectively stops the recording at 15 seconds. 
                     if(RightArrayPos > 750)
                     {
                         RightArrayPos = 750;
@@ -136,8 +140,8 @@ void ROBOT::Loop()
 
 
 
-        //Press the back button to engage Debug Mode. 
-        //Press it again to toggle the output to the display. 
+        //Press L3 button to engage Debug Mode. 
+        //Press R3 to toggle the output to the display. 
         if(IsDebugMode)
         {
             Yukon.OLED.clearDisplay();
@@ -179,7 +183,8 @@ void ROBOT::Loop()
         BuddyBot.OISetSpeed(BuddyLiftSpeed);
         Serial.println((Xbox.getButtonPress(R1, i)*255) - (Xbox.getButtonPress(L1, i)*255));
 
-
+        //Controller Mapping
+        //Be sure to note the diiference between buttonclick and buttonpress!!!
         if (Xbox.getButtonClick(LEFT))
         Auton.QueuePrev();
         
@@ -224,7 +229,7 @@ void ROBOT::Loop()
             delay(1000);
         }
 
-     //Read The Sensors 
+    //Read The Sensors 
     uint16_t LightSensorVal = analogRead(33);
     State.AutonLightSensorActive = (LightSensorVal <= _AutonLightSensorThreshold);
     Serial.println(LightSensorVal); 
@@ -232,6 +237,7 @@ void ROBOT::Loop()
     //Write To Motor Controllers
     if (_NextMotorControllerWriteMillis < millis())
     {
+    //It will not write to the motor controllers more than once every 20 milliseconds
     _NextMotorControllerWriteMillis = millis() + 20; 
     DriveRight.SetMotorSpeed(State.DriveRightSpeed);
     DriveLeft.SetMotorSpeed(State.DriveLeftSpeed);
